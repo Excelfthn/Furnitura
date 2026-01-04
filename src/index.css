@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* Calm Design Palette - Cream/Beige/Earth */
+    --background: #F9F9F8;
+    --foreground: #2D2D2D;
+
+    --primary: #2D2D2D;
+    --primary-foreground: #FFFFFF;
+
+    --secondary: #E8E8E6;
+    --secondary-foreground: #2D2D2D;
+
+    --accent: #8A9A5B;
+    --accent-foreground: #FFFFFF;
+
+    --muted: #888888;
+    --border: #E0E0E0;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-xl font-medium transition-all hover:bg-opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+    @apply bg-secondary text-foreground px-6 py-3 rounded-xl font-medium transition-all hover:bg-opacity-80 active:scale-95;
+}
