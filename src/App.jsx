@@ -5,7 +5,7 @@ import FurnitureLibrary from './components/FurnitureLibrary';
 import FurnitureCanvas from './components/FurnitureCanvas';
 import { resizeImage } from './utils/imageUtils';
 import { generateInterior } from './services/aiService';
-import { Settings, Image as ImageIcon, Download, Sparkles, Check } from 'lucide-react';
+import { Settings, Image as ImageIcon, Download, Sparkles } from 'lucide-react';
 
 function App() {
     const [originalImage, setOriginalImage] = useState(null);
@@ -37,7 +37,6 @@ function App() {
     const buildFurniturePrompt = () => {
         if (placedFurniture.length === 0) return '';
 
-        // Get canvas dimensions (assuming 1024x1024 from resize)
         const canvasWidth = 1024;
         const canvasHeight = 1024;
 
@@ -52,15 +51,15 @@ function App() {
         return `\n\nFURNITURE PLACEMENT (follow exactly):\n${furnitureInstructions}\n`;
     };
 
-    const handleGenerate = async () => {
+    const handleGenerate = async (userPrompt = '') => {
         if (!apiKey) {
             setShowSettings(true);
             setError("Please enter your OpenRouter API Key first.");
             return;
         }
 
-        if (placedFurniture.length === 0) {
-            setError("Please drag some furniture onto the canvas first.");
+        if (placedFurniture.length === 0 && !userPrompt.trim()) {
+            setError("Please either drag furniture onto the canvas or enter a text prompt.");
             return;
         }
 
@@ -71,8 +70,16 @@ function App() {
         try {
             const startTime = Date.now();
 
-            const furniturePrompt = buildFurniturePrompt();
-            const fullPrompt = `Add the following furniture to this room:${furniturePrompt}`;
+            let fullPrompt = '';
+
+            if (placedFurniture.length > 0) {
+                const furniturePrompt = buildFurniturePrompt();
+                fullPrompt += `Add the following furniture to this room:${furniturePrompt}\n\n`;
+            }
+
+            if (userPrompt.trim()) {
+                fullPrompt += userPrompt;
+            }
 
             const data = await generateInterior(optimizedImage, fullPrompt, apiKey);
 
@@ -161,7 +168,6 @@ function App() {
                     ) : (
                         <div className="max-w-6xl mx-auto space-y-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
-                                {/* Canvas with Furniture */}
                                 <div className="relative">
                                     <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium z-10">
                                         Design Canvas ({placedFurniture.length} items)
@@ -180,7 +186,6 @@ function App() {
                                     </button>
                                 </div>
 
-                                {/* Result */}
                                 <div className="relative rounded-2xl overflow-hidden border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
                                     <div className="absolute top-4 left-4 bg-accent/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium z-10 flex items-center gap-1">
                                         <Sparkles className="w-3 h-3" /> Result
@@ -207,8 +212,8 @@ function App() {
                                         </>
                                     ) : (
                                         <div className="text-center px-6">
-                                            <p className="text-muted text-sm">Place furniture on the canvas</p>
-                                            <p className="text-xs text-gray-400 mt-1">Then click "Done" to generate</p>
+                                            <p className="text-muted text-sm">Drag furniture OR type a prompt</p>
+                                            <p className="text-xs text-gray-400 mt-1">Then generate your design</p>
                                         </div>
                                     )}
                                 </div>
@@ -220,19 +225,19 @@ function App() {
                                 </div>
                             )}
 
-                            {/* Done Button */}
-                            <div className="flex justify-center">
-                                <button
-                                    onClick={handleGenerate}
-                                    disabled={isLoading || placedFurniture.length === 0}
-                                    className={`px-8 py-4 rounded-xl flex items-center gap-3 font-medium text-lg shadow-lg transition-all ${isLoading || placedFurniture.length === 0
-                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                            : 'bg-primary text-white hover:bg-gray-800 active:scale-95 hover:shadow-xl'
-                                        }`}
-                                >
-                                    <Check className="w-6 h-6" />
-                                    <span>Done - Generate Final Image</span>
-                                </button>
+                            <div className="space-y-4">
+                                <div className="text-center text-sm text-muted">
+                                    <p className="font-medium">Choose your design method:</p>
+                                    <p className="text-xs mt-1">
+                                        Drag furniture from the library OR type a custom prompt OR do both!
+                                    </p>
+                                </div>
+
+                                <PromptInterface
+                                    onGenerate={handleGenerate}
+                                    isLoading={isLoading}
+                                    loadingText={loadingText}
+                                />
                             </div>
                         </div>
                     )}

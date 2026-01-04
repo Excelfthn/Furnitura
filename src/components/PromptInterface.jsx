@@ -45,7 +45,7 @@ const PromptInterface = ({ onGenerate, isLoading, loadingText }) => {
                     ) : (
                         <>
                             <Sparkles className="w-4 h-4" />
-                            <span>Generate</span>
+                            <span>Generate AI Image</span>
                         </>
                     )}
                 </button>
